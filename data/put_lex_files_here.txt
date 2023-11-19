@@ -1,0 +1,1 @@
+SudachiDictの*_lex.csvファイルをここに置く
