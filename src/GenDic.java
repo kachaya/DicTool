@@ -84,11 +84,41 @@ public class GenDic {
                 continue;
             }
             // 表記にかな漢字以外が含まれているものはスキップ
-            if (!surface.matches("^[\\p{InHiragana}\\p{InKatakana}\\p{InCJKunifiedideographs}]+$")) {
+            if (!surface
+                    .matches("^[\\p{InHiragana}\\p{InKatakana}\\p{InCJKunifiedideographs}]+$")) {
                 listSkip.add(entry);
                 continue;
             }
 
+            if (data[10].endsWith("-促音便")) {
+                if (data[5].equals("形容詞")) {
+                    entry = reading + "た\t" + cost + "\t" + surface + "た";
+                    listAll.add(entry);
+                    continue;
+                }
+                if (data[5].equals("動詞") || data[5].equals("助動詞")) {
+                    entry = reading + "た\t" + cost + "\t" + surface + "た";
+                    listAll.add(entry);
+                    entry = reading + "て\t" + cost + "\t" + surface + "て";
+                    listAll.add(entry);
+                    continue;
+                }
+                if (data[5].equals("接尾辞")) {
+                    if (data[6].equals("形容詞的")) {
+                        entry = reading + "た\t" + cost + "\t" + surface + "た";
+                        listAll.add(entry);
+                        continue;
+                    }
+                    if (data[6].equals("動詞的")) {
+                        entry = reading + "た\t" + cost + "\t" + surface + "た";
+                        listAll.add(entry);
+                        entry = reading + "て\t" + cost + "\t" + surface + "て";
+                        listAll.add(entry);
+                        continue;
+                    }
+                }
+                // System.err.println(line);
+            }
             listAll.add(entry);
         }
         br.close();
@@ -107,7 +137,8 @@ public class GenDic {
         readLex("./data/notcore_lex.csv");
 
         listSkip.sort(Comparator.naturalOrder());
-        BufferedWriter bwSkip = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File("skip.txt")), "UTF-8"));
+        BufferedWriter bwSkip = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(new File("skip.txt")), "UTF-8"));
         for (String list : listSkip) {
             bwSkip.write(list + "\n");
         }
