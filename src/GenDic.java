@@ -50,6 +50,7 @@ public class GenDic {
 
     static ArrayList<String> listAll = new ArrayList<>();
     static ArrayList<String> listSkip = new ArrayList<>();
+    static ArrayList<String> listLex = new ArrayList<>();
 
     static void readLex(String filename) throws IOException {
         File file = new File(filename);
@@ -90,6 +91,8 @@ public class GenDic {
                 continue;
             }
 
+            listLex.add(line);
+
             if (data[10].endsWith("-促音便")) {
                 if (data[5].equals("形容詞")) {
                     entry = reading + "た\t" + cost + "\t" + surface + "た";
@@ -117,7 +120,95 @@ public class GenDic {
                         continue;
                     }
                 }
-                // System.err.println(line);
+            }
+            if (data[10].endsWith("連用形-一般")) {
+                if (data[5].equals("動詞")) {
+                    switch (data[9]) {
+                        case "カ行変格":
+                        case "サ行変格":
+                        case "下一段-ア行":
+                        case "下一段-カ行":
+                        case "下一段-ガ行":
+                        case "下一段-サ行":
+                        case "下一段-ザ行":
+                        case "下一段-タ行":
+                        case "下一段-ダ行":
+                        case "下一段-ナ行":
+                        case "下一段-ハ行":
+                        case "下一段-バ行":
+                        case "下一段-マ行":
+                        case "下一段-ラ行":
+                        case "五段-サ行":
+                        case "上一段-ア行":
+                        case "上一段-カ行":
+                        case "上一段-ガ行":
+                        case "上一段-ザ行":
+                        case "上一段-タ行":
+                        case "上一段-ナ行":
+                        case "上一段-ハ行":
+                        case "上一段-バ行":
+                        case "上一段-マ行":
+                        case "上一段-ラ行":
+                        case "文語カ行変格":
+                        case "文語サ行変格":
+                        case "文語下二段-ア行":
+                        case "文語下二段-カ行":
+                        case "文語下二段-ガ行":
+                        case "文語下二段-サ行":
+                        case "文語下二段-ザ行":
+                        case "文語下二段-タ行":
+                        case "文語下二段-ダ行":
+                        case "文語下二段-ナ行":
+                        case "文語下二段-ハ行":
+                        case "文語下二段-バ行":
+                        case "文語下二段-マ行":
+                        case "文語下二段-ヤ行":
+                        case "文語下二段-ラ行":
+                        case "文語下二段-ワ行":
+                        case "文語四段-サ行":
+                        case "文語四段-タ行":
+                        case "文語上一段-ナ行":
+                        case "文語上一段-マ行":
+                        case "文語上一段-ワ行":
+                        case "文語上二段-タ行":
+                        case "文語上二段-ダ行":
+                        case "文語上二段-ハ行":
+                        case "文語上二段-バ行":
+                        case "文語上二段-ヤ行":
+                        case "文語上二段-ラ行":
+
+                            entry = reading + "た\t" + cost + "\t" + surface + "た";
+                            listAll.add(entry);
+                            entry = reading + "て\t" + cost + "\t" + surface + "て";
+                            listAll.add(entry);
+                            continue;
+
+                        case "五段-カ行":
+                        case "五段-ガ行":
+                        case "五段-タ行":
+                        case "五段-ナ行":
+                        case "五段-バ行":
+                        case "五段-マ行":
+                        case "五段-ラ行":
+                        case "五段-ワア行":
+                        case "文語ナ行変格":
+                        case "文語ラ行変格":
+                        case "文語四段-カ行":
+                        case "文語四段-ガ行":
+                        case "文語四段-ハ行":
+                        case "文語四段-バ行":
+                        case "文語四段-マ行":
+                        case "文語四段-ラ行":
+                            listAll.add(entry);     // そのまま
+                            entry = reading + "て\t" + cost + "\t" + surface + "て";
+                            listAll.add(entry);
+                            continue;
+
+                        default:
+                            System.err.println(line);
+                            break;
+                    }
+                }
             }
             listAll.add(entry);
         }
@@ -135,6 +226,14 @@ public class GenDic {
         readLex("./data/small_lex.csv");
         readLex("./data/core_lex.csv");
         readLex("./data/notcore_lex.csv");
+
+        listLex.sort(Comparator.naturalOrder());
+        BufferedWriter bwLex = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(new File("lex.csv")), "UTF-8"));
+        for (String list : listLex) {
+            bwLex.write(list + "\n");
+        }
+        bwLex.close();
 
         listSkip.sort(Comparator.naturalOrder());
         BufferedWriter bwSkip = new BufferedWriter(
