@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.lang.Character.UnicodeBlock;
+import java.lang.Character.UnicodeScript;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Properties;
@@ -51,6 +53,7 @@ public class GenDic {
     static ArrayList<String> listAll = new ArrayList<>();
     static ArrayList<String> listSkip = new ArrayList<>();
     static ArrayList<String> listLex = new ArrayList<>();
+    static ArrayList<String> listSymbol = new ArrayList<>();
 
     static void readLex(String filename) throws IOException {
         File file = new File(filename);
@@ -84,6 +87,21 @@ public class GenDic {
                 listSkip.add(entry);
                 continue;
             }
+
+            if (data[5].equals("記号") || data[5].equals("補助記号")) {
+                if (!reading.equals("きごう")) {
+                    listAll.add(entry);
+                    continue;
+                }
+                UnicodeBlock block = UnicodeBlock.of(surface.charAt(0));
+                if (block.equals(UnicodeBlock.HIGH_SURROGATES)) {
+                    listAll.add(entry);
+                    continue;
+                }
+                listSymbol.add(block.toString() + "\t" + entry + "\t" + line);
+                // System.err.println(line + " : " + block.toString());
+            }
+
             // 表記にかな漢字以外が含まれているものはスキップ
             if (!surface
                     .matches("^[\\p{InHiragana}\\p{InKatakana}\\p{InCJKunifiedideographs}]+$")) {
@@ -199,7 +217,7 @@ public class GenDic {
                         case "文語四段-バ行":
                         case "文語四段-マ行":
                         case "文語四段-ラ行":
-                            listAll.add(entry);     // そのまま
+                            listAll.add(entry); // そのまま
                             entry = reading + "て\t" + cost + "\t" + surface + "て";
                             listAll.add(entry);
                             continue;
@@ -234,6 +252,14 @@ public class GenDic {
             bwLex.write(list + "\n");
         }
         bwLex.close();
+
+        listSymbol.sort(Comparator.naturalOrder());
+        BufferedWriter bwSymbol = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(new File("symbol.txt")), "UTF-8"));
+        for (String list : listSymbol) {
+            bwSymbol.write(list + "\n");
+        }
+        bwSymbol.close();
 
         listSkip.sort(Comparator.naturalOrder());
         BufferedWriter bwSkip = new BufferedWriter(
