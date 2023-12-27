@@ -65,8 +65,9 @@ public class GenDic {
             String[] data = line.split(",");
             String reading = toWideHiragana(unescape(data[11]));
             int cost = Integer.parseInt(data[3]);
-            if (cost <= 0) {
-                cost = 10000;
+            // 固有名詞-人名-名などのcostが10000のものは他の候補に比べておかしい
+            if (cost <= 0 || cost == 10000) {
+                cost = 20000;
             }
             cost += 32768; // 文字列としてソートするため5桁にする
             String surface = unescape(data[4]);
