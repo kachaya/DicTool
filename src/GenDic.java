@@ -10,7 +10,9 @@ import java.lang.Character.UnicodeBlock;
 import java.lang.Character.UnicodeScript;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.Properties;
+import java.util.Set;
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
 import jdbm.btree.BTree;
@@ -54,6 +56,7 @@ public class GenDic {
     static ArrayList<String> listSkip = new ArrayList<>();
     static ArrayList<String> listLex = new ArrayList<>();
     static ArrayList<String> listSymbol = new ArrayList<>();
+    static Set<String> setComplement = new LinkedHashSet<>();
 
     static void readLex(String filename) throws IOException {
         File file = new File(filename);
@@ -110,126 +113,82 @@ public class GenDic {
                 continue;
             }
 
+            // 採用した*_lex.csv内の行
             listLex.add(line);
 
-            if (data[10].endsWith("-促音便")) {
-                if (data[5].equals("形容詞")) {
-                    entry = reading + "た\t" + cost + "\t" + surface + "た";
-                    listAll.add(entry);
-                    continue;
-                }
-                if (data[5].equals("動詞") || data[5].equals("助動詞")) {
-                    entry = reading + "た\t" + cost + "\t" + surface + "た";
-                    listAll.add(entry);
-                    entry = reading + "て\t" + cost + "\t" + surface + "て";
-                    listAll.add(entry);
-                    continue;
-                }
-                if (data[5].equals("接尾辞")) {
-                    if (data[6].equals("形容詞的")) {
-                        entry = reading + "た\t" + cost + "\t" + surface + "た";
-                        listAll.add(entry);
+            // 語尾の補完
+            if (reading.endsWith("っ") && surface.endsWith("っ")) {
+                switch (data[5]) {
+                    case "名詞":
+                    case "代名詞":
+                    case "接頭辞":
+                    case "形状詞":
+                        listSkip.add(entry);
                         continue;
-                    }
-                    if (data[6].equals("動詞的")) {
+                    case "動詞":
+                        switch (data[10]) {
+                            case "意志推量形":
+                                listAll.add(entry);
+                                entry = reading + "と\t" + cost + "\t" + surface + "と";
+                                listAll.add(entry);
+                                break;
+                            case "連用形-促音便":
+                                entry = reading + "た\t" + cost + "\t" + surface + "た";
+                                listAll.add(entry);
+                                entry = reading + "て\t" + cost + "\t" + surface + "て";
+                                listAll.add(entry);
+                                break;
+                            default:
+                                listSkip.add(entry);
+                                // System.out.println(line);
+                                break;
+                        }
+                        continue;
+                    case "助動詞":
                         entry = reading + "た\t" + cost + "\t" + surface + "た";
                         listAll.add(entry);
                         entry = reading + "て\t" + cost + "\t" + surface + "て";
                         listAll.add(entry);
                         continue;
-                    }
+                    case "形容詞":
+                        entry = reading + "た\t" + cost + "\t" + surface + "た";
+                        listAll.add(entry);
+                        continue;
+                    case "接尾辞":
+                        switch (data[6]) {
+                            case "動詞的":
+                                entry = reading + "て\t" + cost + "\t" + surface + "て";
+                                listAll.add(entry);
+                                entry = reading + "た\t" + cost + "\t" + surface + "た";
+                                listAll.add(entry);
+                                break;
+                            case "形容詞的":
+                                entry = reading + "た\t" + cost + "\t" + surface + "た";
+                                listAll.add(entry);
+                                break;
+                            case "名詞的":
+                                listAll.add(entry);
+                                break;
+                            default:
+                                listSkip.add(entry);
+                                break;
+                        }
+                        continue;
+                    case "副詞":
+                        listAll.add(entry);
+                        entry = reading + "と\t" + cost + "\t" + surface + "と";
+                        listAll.add(entry);
+                        continue;
+                    case "感動詞":
+                        listAll.add(entry);
+                        continue;
+                    default:
+                        break;
                 }
+                setComplement.add(line);
+            } else {
+                listAll.add(entry);
             }
-            if (data[10].endsWith("連用形-一般")) {
-                if (data[5].equals("動詞")) {
-                    switch (data[9]) {
-                        case "カ行変格":
-                        case "サ行変格":
-                        case "下一段-ア行":
-                        case "下一段-カ行":
-                        case "下一段-ガ行":
-                        case "下一段-サ行":
-                        case "下一段-ザ行":
-                        case "下一段-タ行":
-                        case "下一段-ダ行":
-                        case "下一段-ナ行":
-                        case "下一段-ハ行":
-                        case "下一段-バ行":
-                        case "下一段-マ行":
-                        case "下一段-ラ行":
-                        case "五段-サ行":
-                        case "上一段-ア行":
-                        case "上一段-カ行":
-                        case "上一段-ガ行":
-                        case "上一段-ザ行":
-                        case "上一段-タ行":
-                        case "上一段-ナ行":
-                        case "上一段-ハ行":
-                        case "上一段-バ行":
-                        case "上一段-マ行":
-                        case "上一段-ラ行":
-                        case "文語カ行変格":
-                        case "文語サ行変格":
-                        case "文語下二段-ア行":
-                        case "文語下二段-カ行":
-                        case "文語下二段-ガ行":
-                        case "文語下二段-サ行":
-                        case "文語下二段-ザ行":
-                        case "文語下二段-タ行":
-                        case "文語下二段-ダ行":
-                        case "文語下二段-ナ行":
-                        case "文語下二段-ハ行":
-                        case "文語下二段-バ行":
-                        case "文語下二段-マ行":
-                        case "文語下二段-ヤ行":
-                        case "文語下二段-ラ行":
-                        case "文語下二段-ワ行":
-                        case "文語四段-サ行":
-                        case "文語四段-タ行":
-                        case "文語上一段-ナ行":
-                        case "文語上一段-マ行":
-                        case "文語上一段-ワ行":
-                        case "文語上二段-タ行":
-                        case "文語上二段-ダ行":
-                        case "文語上二段-ハ行":
-                        case "文語上二段-バ行":
-                        case "文語上二段-ヤ行":
-                        case "文語上二段-ラ行":
-
-                            entry = reading + "た\t" + cost + "\t" + surface + "た";
-                            listAll.add(entry);
-                            entry = reading + "て\t" + cost + "\t" + surface + "て";
-                            listAll.add(entry);
-                            continue;
-
-                        case "五段-カ行":
-                        case "五段-ガ行":
-                        case "五段-タ行":
-                        case "五段-ナ行":
-                        case "五段-バ行":
-                        case "五段-マ行":
-                        case "五段-ラ行":
-                        case "五段-ワア行":
-                        case "文語ナ行変格":
-                        case "文語ラ行変格":
-                        case "文語四段-カ行":
-                        case "文語四段-ガ行":
-                        case "文語四段-ハ行":
-                        case "文語四段-バ行":
-                        case "文語四段-マ行":
-                        case "文語四段-ラ行":
-                            listAll.add(entry); // そのまま
-                            entry = reading + "て\t" + cost + "\t" + surface + "て";
-                            listAll.add(entry);
-                            continue;
-
-                        default:
-                            System.err.println(line);
-                            break;
-                    }
-                }
-            }
-            listAll.add(entry);
         }
         br.close();
     }
@@ -245,6 +204,13 @@ public class GenDic {
         readLex("./data/small_lex.csv");
         readLex("./data/core_lex.csv");
         readLex("./data/notcore_lex.csv");
+
+        BufferedWriter bwComplement = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(new File("complement.csv")), "UTF-8"));
+        for (String list : setComplement) {
+            bwComplement.write(list + "\n");
+        }
+        bwComplement.close();
 
         listLex.sort(Comparator.naturalOrder());
         BufferedWriter bwLex = new BufferedWriter(
