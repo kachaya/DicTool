@@ -3,20 +3,21 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.lang.Character.UnicodeBlock;
-import java.lang.Character.UnicodeScript;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.Set;
-import jdbm.RecordManager;
-import jdbm.RecordManagerFactory;
 import jdbm.btree.BTree;
 import jdbm.helper.StringComparator;
+import jdbm.RecordManager;
+import jdbm.RecordManagerFactory;
 
 public class GenDic {
     static String SYS_DIC_NAME = "system_dic";
@@ -241,6 +242,9 @@ public class GenDic {
         File f = new File(SYS_DIC_NAME + ".txt");
         OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(f), "UTF-8");
         BufferedWriter bw = new BufferedWriter(osw);
+
+        Files.delete(Paths.get(SYS_DIC_NAME + ".db"));
+        Files.delete(Paths.get(SYS_DIC_NAME + ".lg"));
 
         recman = RecordManagerFactory.createRecordManager(SYS_DIC_NAME, props);
         tree = BTree.createInstance(recman, new StringComparator());
