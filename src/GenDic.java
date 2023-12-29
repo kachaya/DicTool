@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 import jdbm.btree.BTree;
 import jdbm.helper.StringComparator;
 import jdbm.RecordManager;
@@ -53,7 +54,7 @@ public class GenDic {
         return sb.toString();
     }
 
-    static ArrayList<String> listAll = new ArrayList<>();
+    static Set<String> listAll = new TreeSet<>();
     static ArrayList<String> listSkip = new ArrayList<>();
     static ArrayList<String> listLex = new ArrayList<>();
     static ArrayList<String> listSymbol = new ArrayList<>();
@@ -118,6 +119,39 @@ public class GenDic {
             listLex.add(line);
 
             // 語尾の補完
+
+            // 「来」
+            if (data[9].contains("カ行変格")) {
+                listAll.add(entry);
+                switch (data[10]) {
+                    case "連用形-一般": // 「き」
+                        entry = reading + "た\t" + cost + "\t" + surface + "た";
+                        listAll.add(entry);
+                        entry = reading + "て\t" + cost + "\t" + surface + "て";
+                        listAll.add(entry);
+                        continue;
+                    case "未然形-一般": // 「こ」
+                        entry = reading + "ない\t" + cost + "\t" + surface + "ない";
+                        listAll.add(entry);
+                        entry = reading + "ず\t" + cost + "\t" + surface + "ず";
+                        listAll.add(entry);
+                        continue;
+                }
+                continue;
+            }
+            if (data[9].contains("サ行変格")) {
+                listAll.add(entry);
+                switch (data[10]) {
+                    case "連用形-一般":
+                        entry = reading + "た\t" + cost + "\t" + surface + "た";
+                        listAll.add(entry);
+                        entry = reading + "て\t" + cost + "\t" + surface + "て";
+                        listAll.add(entry);
+                        continue;
+                }
+                // setComplement.add(line);
+                continue;
+            }
             if (reading.endsWith("っ") && surface.endsWith("っ")) {
                 switch (data[5]) {
                     case "名詞":
@@ -187,9 +221,45 @@ public class GenDic {
                         break;
                 }
                 setComplement.add(line);
-            } else {
-                listAll.add(entry);
+                continue;
             }
+            if (data[10].equals("連用形-一般")) {
+                // 「見た」等
+                if (data[9].contains("上一段")) {
+                    listAll.add(entry);
+                    entry = reading + "よう\t" + cost + "\t" + surface + "よう";
+                    listAll.add(entry);
+                    entry = reading + "ない\t" + cost + "\t" + surface + "ない";
+                    listAll.add(entry);
+                    entry = reading + "る\t" + cost + "\t" + surface + "る";
+                    listAll.add(entry);
+                    entry = reading + "た\t" + cost + "\t" + surface + "た";
+                    listAll.add(entry);
+                    entry = reading + "れ\t" + cost + "\t" + surface + "れ";
+                    listAll.add(entry);
+                    entry = reading + "ろ\t" + cost + "\t" + surface + "ろ";
+                    listAll.add(entry);
+                    continue;
+                }
+                // 「得た」等
+                if (data[9].contains("下一段")) {
+                    listAll.add(entry);
+                    entry = reading + "ない\t" + cost + "\t" + surface + "ない";
+                    listAll.add(entry);
+                    entry = reading + "ぬ\t" + cost + "\t" + surface + "ぬ";
+                    listAll.add(entry);
+                    entry = reading + "ず\t" + cost + "\t" + surface + "ず";
+                    listAll.add(entry);
+                    entry = reading + "た\t" + cost + "\t" + surface + "た";
+                    listAll.add(entry);
+                    entry = reading + "て\t" + cost + "\t" + surface + "て";
+                    listAll.add(entry);
+                    continue;
+                }
+
+                continue;
+            }
+            listAll.add(entry);
         }
         br.close();
     }
@@ -237,7 +307,7 @@ public class GenDic {
         }
         bwSkip.close();
 
-        listAll.sort(Comparator.naturalOrder());
+        // listAll.sort(Comparator.naturalOrder());
 
         File f = new File(SYS_DIC_NAME + ".txt");
         OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(f), "UTF-8");
