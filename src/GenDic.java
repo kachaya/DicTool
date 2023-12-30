@@ -235,6 +235,8 @@ public class GenDic {
                     listAll.add(entry);
                     entry = reading + "た\t" + cost + "\t" + surface + "た";
                     listAll.add(entry);
+                    entry = reading + "て\t" + cost + "\t" + surface + "て";
+                    listAll.add(entry);
                     entry = reading + "れ\t" + cost + "\t" + surface + "れ";
                     listAll.add(entry);
                     entry = reading + "ろ\t" + cost + "\t" + surface + "ろ";
