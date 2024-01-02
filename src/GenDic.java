@@ -78,6 +78,10 @@ public class GenDic {
             String surface = unescape(data[4]);
             String entry = reading + "\t" + cost + "\t" + surface;
 
+            if (data[5].equals("感動詞")) {
+                listSkip.add(entry);
+                continue;
+            }
             // アスキーアートはスキップ
             if (data[6].equals("ＡＡ")) {
                 listSkip.add(entry);
@@ -224,9 +228,9 @@ public class GenDic {
                 continue;
             }
             if (data[10].equals("連用形-一般")) {
+                listAll.add(entry);
                 // 「見た」等
                 if (data[9].contains("上一段")) {
-                    listAll.add(entry);
                     entry = reading + "よう\t" + cost + "\t" + surface + "よう";
                     listAll.add(entry);
                     entry = reading + "ない\t" + cost + "\t" + surface + "ない";
@@ -245,7 +249,6 @@ public class GenDic {
                 }
                 // 「得た」等
                 if (data[9].contains("下一段")) {
-                    listAll.add(entry);
                     entry = reading + "ない\t" + cost + "\t" + surface + "ない";
                     listAll.add(entry);
                     entry = reading + "ぬ\t" + cost + "\t" + surface + "ぬ";
