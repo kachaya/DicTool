@@ -324,30 +324,43 @@ public class GenDic {
         recman = RecordManagerFactory.createRecordManager(SYS_DIC_NAME, props);
         tree = BTree.createInstance(recman, new StringComparator());
         recman.setNamedObject(BTREE_NAME, tree.getRecid());
-        System.out.println("Created a new empty BTree");
 
         String key = "";
-        String value = "";
+        Set<String> values = new LinkedHashSet<>();
         for (String list : listAll) {
             String ss[] = list.split("\t");
             String reading = ss[0];
             String surface = ss[2];
+
             if (reading.equals(key)) {
-                if (!value.contains(surface)) {
-                    value = value + "\t" + surface;
-                }
+                values.add(surface);
             } else {
-                if (value.length() != 0) {
-                    bw.write(key + "\t" + value + "\n");
-                    tree.insert(key, value, true);
+                if (values.size() > 0) {
+                    StringBuilder sb = new StringBuilder();
+                    for (String value : values) {
+                        if (sb.length() != 0) {
+                            sb.append("\t");
+                        }
+                        sb.append(value);
+                    }
+                    bw.write(key + "\t" + sb + "\n");
+                    tree.insert(key, sb.toString(), true);
                 }
                 key = reading;
-                value = surface;
+                values.clear();
+                values.add(surface);
             }
         }
-        if (value.length() != 0) {
-            bw.write(key + "\t" + value + "\n");
-            tree.insert(key, value, true);
+        if (values.size() > 0) {
+            StringBuilder sb = new StringBuilder();
+            for (String value : values) {
+                if (sb.length() != 0) {
+                    sb.append("\t");
+                }
+                sb.append(value);
+            }
+            bw.write(key + "\t" + sb + "\n");
+            tree.insert(key, sb.toString(), true);
         }
         recman.commit();
         recman.close();
