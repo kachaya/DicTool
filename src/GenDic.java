@@ -227,6 +227,39 @@ public class GenDic {
                 setComplement.add(line);
                 continue;
             }
+            if (data[10].equals("未然形-一般")) {
+                switch (data[5]) {
+                    case "動詞":
+                        entry = reading + "ない\t" + cost + "\t" + surface + "ない";
+                        listAll.add(entry);
+                        entry = reading + "ず\t" + cost + "\t" + surface + "ず";
+                        listAll.add(entry);
+                        continue;
+                    case "形容詞":
+                        listAll.add(entry);
+                        entry = reading + "ない\t" + cost + "\t" + surface + "ない";
+                        listAll.add(entry);
+                        continue;
+                    default:
+                        // TODO:接尾辞、助動詞
+                        // setComplement.add(line);
+                        break;
+                }
+            }
+            if (data[10].equals("仮定形-一般")) {
+                switch (data[5]) {
+                    case "動詞":
+                    case "形容詞":
+                        listAll.add(entry);
+                        entry = reading + "ば\t" + cost + "\t" + surface + "ば";
+                        listAll.add(entry);
+                        continue;
+                    default:
+                        // TODO:接尾辞、助動詞
+                        // setComplement.add(line);
+                        break;
+                }
+            }
             if (data[10].equals("連用形-一般")) {
                 listAll.add(entry);
                 // 「見た」等
