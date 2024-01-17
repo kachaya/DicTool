@@ -60,6 +60,27 @@ public class GenDic {
     static ArrayList<String> listSymbol = new ArrayList<>();
     static Set<String> setComplement = new LinkedHashSet<>();
 
+    static void readWikipediaYomigana(String filename) throws IOException {
+        File file = new File(filename);
+        FileInputStream fis = new FileInputStream(file);
+        InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
+        BufferedReader br = new BufferedReader(isr);
+        String line;
+        while ((line = br.readLine()) != null) {
+            String[] data = line.split("\t");
+            if (data.length != 2) {
+                continue;
+            }
+            String reading = toWideHiragana(data[0]).strip();
+            String surface = data[1].strip();
+            int cost = 9000;   // Sudachiのユーザ辞書での名詞のコストは5000～9000を推奨している
+            cost += 32768; // 文字列としてソートするため5桁にする
+            String entry = reading + "\t" + cost + "\t" + surface;
+            listAll.add(entry);
+        }
+        br.close();
+    }
+
     static void readLex(String filename) throws IOException {
         File file = new File(filename);
         FileInputStream fis = new FileInputStream(file);
@@ -114,7 +135,7 @@ public class GenDic {
 
             // 表記にかな漢字以外が含まれているものはスキップ
             if (!surface
-                    .matches("^[\\p{InHiragana}\\p{InKatakana}\\p{InCJKunifiedideographs}]+$")) {
+                    .matches("^[\\p{InHiragana}\\p{InKatakana}\\p{InCJKunifiedideographs}々]+$")) {
                 listSkip.add(entry);
                 continue;
             }
@@ -313,6 +334,7 @@ public class GenDic {
         readLex("./data/small_lex.csv");
         readLex("./data/core_lex.csv");
         readLex("./data/notcore_lex.csv");
+        readWikipediaYomigana("./data/WikipediaYomigana.txt");
 
         BufferedWriter bwComplement = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(new File("complement.csv")), "UTF-8"));
