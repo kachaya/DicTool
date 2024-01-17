@@ -373,8 +373,8 @@ public class GenDic {
         OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(f), "UTF-8");
         BufferedWriter bw = new BufferedWriter(osw);
 
-        Files.delete(Paths.get(SYS_DIC_NAME + ".db"));
-        Files.delete(Paths.get(SYS_DIC_NAME + ".lg"));
+        Files.deleteIfExists(Paths.get(SYS_DIC_NAME + ".db"));
+        Files.deleteIfExists(Paths.get(SYS_DIC_NAME + ".lg"));
 
         recman = RecordManagerFactory.createRecordManager(SYS_DIC_NAME, props);
         tree = BTree.createInstance(recman, new StringComparator());
