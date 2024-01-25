@@ -34,6 +34,10 @@ public class ExtractWikipediaWord {
         return false;
     }
 
+    static boolean isKana(char ch) {
+        return (isReadingFirstChar(ch) || ch == 'ー');
+    }
+
     // 全角ひらがな変換
     public static char toWideHiragana(char ch) {
         if (ch >= 'ァ' && ch <= 'ヶ') {
@@ -84,6 +88,21 @@ public class ExtractWikipediaWord {
             return;
         }
         if (!surface.matches("^[\\p{InHiragana}\\p{InKatakana}\\p{InCJKunifiedideographs}々]+$")) {
+            return;
+        }
+
+        // 文字数
+        int readingKanaCount = reading.length();
+        int surfaceKanaCount = 0;
+        int surfaceKanjiCount = 0;
+        for (char ch : surface.toCharArray()) {
+            if (isKana(ch)) {
+                surfaceKanaCount++;
+            } else {
+                surfaceKanjiCount++;
+            }
+        }
+        if (surfaceKanjiCount > (readingKanaCount - surfaceKanaCount)) {
             return;
         }
 
